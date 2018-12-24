@@ -9,27 +9,6 @@ const Wrap = styled.div`
     margin: 0 auto;
 `;
 
-// var stage = new PIXI.Container();
-// var container = new PIXI.Container();
-// var foreground = new PIXI.Container();
-// stage.addChild(container);
-// stage.addChild(foreground);
-
-// var mousex = w/2, mousey = h/2;
-
-// function animate() {
-// console.log('aaaaaaaaaa');
-//   f.scale.x = (window.innerWidth/2 - mousex) / 80;
-//   f.scale.y = (window.innerHeight/2 - mousey) / 80;
-//   fg.addChild(d);
-//   d.renderable=false;
-
-//   renderer.render(stage);
-//   requestAnimationFrame(animate);
-// }
-
-const ploader = new PIXI.loaders.Loader();
-
 const Depth = new PIXI.Sprite.fromImage("http://i.imgur.com/tZsAgFP.jpg");
 let f = new PIXI.filters.DisplacementFilter(Depth, 1);
 // const displacement = new PIXI.filters.DisplacementFilter(Depth, 0);
@@ -38,38 +17,38 @@ class ImageContainer extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            mouseY: 0
-        };
-        this.mousemove = new PIXI.filters.DisplacementFilter(Depth, this.state.mouseY + 100)
+            mouseY: 0,
+            mouseX: 0
+        };   
     }
 
-    componentDidMount() {
+    /* Update the displacement filter with new distortion values */
+    componentDidUpdate(prevProps, prevState) {
+        f.scale.x = (window.innerWidth/2 - this.state.mouseX) / 60;
+        f.scale.y = (window.innerHeight/2 - this.state.mouseY) / 60;
     }
 
-    onMount = () => {
-    };
-
-    startMagic = () => {
-        // animate();
-    };
-
+    /* Save position of mouse in relation to the image Container */
     handleMouseMove = (e) => {
         this.setState({ mouseX: e.clientX, mouseY : e.clientY });
     }
 
-    animate = () => {
-
+    /* Reset displacement filter's distortion params */
+    handleMouseLeave = (e) => {
+        f.scale.x = 1;
+        f.scale.y = 1;
     }
 
     render() {
         return (
-            <Stage width={400} height={400} onMount={this.onMount} onMouseMove={this.handleMouseMove}>
+            <Stage width={400} height={400} onMount={this.onMount} onMouseMove={this.handleMouseMove} onMouseLeave={this.handleMouseLeave}>
                 <Container position={[0,0]}>
                     {/* Foreground */}
-                    <Sprite filters={[new PIXI.filters.DisplacementFilter(Depth, this.state.mouseY)]}  image="http://i.imgur.com/n0WMktI.jpg" />
-                    {/* Background  */}
-                    
+                    <Sprite filters={[f]}  image="http://i.imgur.com/n0WMktI.jpg" />
+                    {/* Background (ehh, not sure if necessary tbh)  */}
                     <Sprite image={"http://i.imgur.com/tZsAgFP.jpg"} renderable={false} />
+                    {/* Addition */}
+                    <Sprite width="200" height="200" image={"https://cdn4.iconfinder.com/data/icons/logos-3/600/React.js_logo-512.png"} />
                 </Container>
             </Stage>
         );
